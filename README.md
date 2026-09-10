@@ -474,6 +474,107 @@ Notice `customers` and `branches` are **separate tables**, not one giant table w
 5. **Virtual environments (`venv`)** isolate each project's Python packages from the rest of the system.
 6. **EC2 public IPs change** when you stop/start an instance (unless you set up an Elastic IP) — a very common real-world "why did my connection break?" moment.
 7. **Schemas** group related tables inside a database.
+
+# Using GCP (Google Cloud Platform) — A Detailed Beginner's Guide
+
+The class notes so far only covered AWS. This guide covers the GCP equivalent of the same workflow — since a `GCP-Ubuntu` host appeared in the class's SSH config but was never explained on screen.
+
+Almost everything you already learned transfers directly — SSH, Docker, PostgreSQL, Git don't change. Only *how you create and access the server* differs.
+
+## AWS → GCP: matching up the concepts
+
+| AWS term | GCP equivalent | What it is |
+|---|---|---|
+| EC2 | Compute Engine | The service for renting virtual servers |
+| EC2 Instance | VM instance | An individual virtual server |
+| Security Group | Firewall rules | Controls what traffic can reach your server |
+| Key Pair | SSH keys (per-project or per-instance) | How you prove your identity to log in |
+| Elastic IP | Static external IP address | A fixed IP that doesn't change on restart |
+| AWS Console | Google Cloud Console | The web dashboard for everything |
+| Region/Availability Zone | Region/Zone | Same concept, same naming |
+
+## Step 1: Create a Google Cloud account
+
+1. Go to console.cloud.google.com and sign in with a Google account.
+2. Create a new Project via the project dropdown (top-left) → New Project.
+3. Search "Compute Engine" in the top search bar and click Enable (first time only).
+
+## Step 2: Create your first VM instance
+
+1. Compute Engine → VM instances → Create Instance.
+2. Name it, pick a Region/Zone close to you (e.g. asia-southeast1 for Singapore).
+3. Machine type: e2-medium (roughly equivalent to AWS's t2.small).
+4. Boot disk → Change → Public images → Ubuntu → Ubuntu 24.04 LTS → Select.
+5. Check "Allow HTTP traffic" / "Allow HTTPS traffic" if needed (SSH/port 22 is open by default).
+6. Click Create.
+
+## Step 3: Connecting to your GCP server
+
+Three options, easiest to most useful for this class:
+
+**A. Browser-based SSH (built-in)** — click the "SSH" button next to your instance in the console. Opens a terminal in a new tab instantly, no key setup. Good for a quick look, but other tools (like VS Code) can't use this session.
+
+**B. gcloud CLI (recommended)**
+```
+# Install the Google Cloud CLI from cloud.google.com/sdk, then:
+gcloud auth login
+gcloud compute ssh <instance-name> --zone=<your-zone>
+```
+Handles key management for you automatically.
+
+**C. Manual SSH key (matches your AWS workflow exactly)**
+```
+ssh-keygen -t ed25519
+```
+Then in the Console: Compute Engine → Metadata → SSH Keys → Add your public key.
+Connect the same way you did on AWS:
+```
+ssh <username>@<external-ip>
+```
+This is the method that plugs directly into VS Code Remote-SSH.
+
+## Step 4: Opening a port for PostgreSQL (equivalent of the AWS security group fix)
+
+1. Console search bar → "Firewall" → VPC network → Firewall.
+2. Create Firewall Rule → name it e.g. "allow-postgres".
+3. Targets: "All instances in the network" (simplest for learning).
+4. Source IPv4 ranges: your IP + /32 (safer) or 0.0.0.0/0 (testing only).
+5. Protocols and ports: TCP, port 5432.
+6. Create. Takes effect immediately.
+
+## Step 5: VS Code SSH config for both servers at once
+
+`~/.ssh/config` (Mac/Linux) or `C:\Users\<You>\.ssh\config` (Windows):
+
+```
+Host AWS-Ubuntu
+    HostName 47.129.150.225
+    User ubuntu
+
+Host GCP-Ubuntu
+    HostName 136.119.233.46
+    User ubuntu
+```
+
+VS Code's Remote-SSH extension then lets you pick either host from a list instead of retyping IPs.
+
+## Step 6: Everything after this is identical
+
+Once connected, every command from the rest of your notes works unchanged:
+```bash
+cd /opt
+sudo mkdir services
+git clone git@github.com:<username>/<repo>.git
+sudo chown -R ubuntu:ubuntu services/
+```
+Docker install, PostgreSQL, the Python `.env`/`psycopg2` setup, DBeaver (just point it at the GCP external IP) — nothing changes. AWS and GCP are different landlords renting you the same kind of apartment.
+
+## GCP-specific things worth knowing
+
+- **External IPs change on restart** too, unless you reserve a Static External IP (VM instances → click instance → Reserve Static External IP Address) — the direct equivalent of an AWS Elastic IP.
+- **Billing**: stop your VM when not in use (no compute charges while stopped); set a budget alert under Billing → Budgets & alerts; watch your free trial credit balance.
+- **Default SSH username** may be based on your Google account name rather than always "ubuntu" like on AWS — if `ssh <username>@<ip>` fails, run `gcloud compute ssh` once to see the username it uses.
+
 8. **`PRIMARY KEY`**, **`NOT NULL`**, and choosing sensible column types (`VARCHAR` vs `INTEGER` vs `DATE`) are the basic building blocks of designing a table.
 9. Splitting data into separate, linked tables (customers, branches, etc.) instead of one giant table is the beginning of **database normalisation**.
 
