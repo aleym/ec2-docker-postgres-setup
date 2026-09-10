@@ -43,8 +43,8 @@ ssh-keygen -t ed25519
 ```
 
 This creates:
-- `~/.ssh/id_ed25519` — the **private** key (kept secret, never shared)
-- `~/.ssh/id_ed25519.pub` — the **public** key (safe to share)
+- `~/.ssh/id_ed*******` — the **private** key (kept secret, never shared)
+- `~/.ssh/id_ed******.pub` — the **public** key (safe to share)
 
 I printed the public key and copied it:
 
