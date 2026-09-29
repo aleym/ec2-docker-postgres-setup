@@ -58,7 +58,7 @@ On Linux/Mac these live in `~/.ssh/`. On Windows they'd live in `C:\Users\<YourU
 I printed the public key and copied it:
 
 ```bash
-cat ~/.ssh/id_ed25519.pub
+cat ~/.ssh/id_xxxxxxxx.pub
 ```
 
 ...then added it under **GitHub → Settings → SSH and GPG keys → New SSH key**, and verified the connection:
