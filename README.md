@@ -46,7 +46,7 @@ sudo mkdir services
 To let the server pull code privately from GitHub, I generated an SSH key pair on it:
 
 ```bash
-ssh-keygen -t ed25519
+ssh-keygen -t edxxxxxxxx
 ```
 
 This creates:
