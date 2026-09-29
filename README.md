@@ -50,8 +50,8 @@ ssh-keygen -t ed25519
 ```
 
 This creates:
-- `id_ed25519` — the **private** key (kept secret, never shared)
-- `id_ed25519.pub` — the **public** key (safe to share)
+- `id_xxxxxx` — the **private** key (kept secret, never shared)
+- `id_xxxxx.pub` — the **public** key (safe to share)
 
 On Linux/Mac these live in `~/.ssh/`. On Windows they'd live in `C:\Users\<YourUsername>\.ssh\` — but since this key was generated *on the server itself* (a Linux machine), the path is `~/.ssh/` either way.
 
@@ -548,11 +548,11 @@ This is the method that plugs directly into VS Code Remote-SSH.
 
 ```
 Host AWS-Ubuntu
-    HostName 47.129.150.225
+    HostName xxxxxxxxx
     User ubuntu
 
 Host GCP-Ubuntu
-    HostName 136.119.233.46
+    HostName xxxxxxxx
     User ubuntu
 ```
 
